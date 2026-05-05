@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 05, 2026 at 03:19 PM
+-- Generation Time: May 05, 2026 at 08:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,7 +34,7 @@ CREATE TABLE `bookings` (
   `tgl_booking` date NOT NULL,
   `jam_booking` time NOT NULL,
   `total_biaya` decimal(10,2) DEFAULT 0.00,
-  `status_pembayaran` enum('pending','lunas') DEFAULT 'pending',
+  `status_pembayaran` enum('pending','dp','lunas','batal') DEFAULT 'pending',
   `status_kerja` enum('menunggu','diproses','selesai') DEFAULT 'menunggu',
   `id_employee` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -47,7 +47,11 @@ CREATE TABLE `bookings` (
 INSERT INTO `bookings` (`id_booking`, `nama_customer`, `whatsapp_customer`, `tgl_booking`, `jam_booking`, `total_biaya`, `status_pembayaran`, `status_kerja`, `id_employee`, `created_at`) VALUES
 ('SLN-20260505-7098', 'Puspa', '0812341851891', '2026-05-05', '02:28:00', 385000.00, 'lunas', 'selesai', 3, '2026-05-04 19:28:09'),
 ('SLN-20260505-752B', 'GG', '0852141401401', '2026-05-05', '07:35:00', 655000.00, 'lunas', 'selesai', NULL, '2026-05-04 20:36:00'),
-('SLN-20260506-4DD3', 'Nurjaman', '0875123149912', '2026-05-06', '08:48:00', 535000.00, 'lunas', 'selesai', NULL, '2026-05-04 20:43:48');
+('SLN-20260506-4B9B', 'GG 2', '0185818', '2026-05-06', '01:07:00', 550000.00, 'lunas', 'selesai', NULL, '2026-05-05 18:05:12'),
+('SLN-20260506-4DD3', 'Nurjaman', '0875123149912', '2026-05-06', '08:48:00', 535000.00, 'lunas', 'selesai', NULL, '2026-05-04 20:43:48'),
+('SLN-20260506-5410', 'Sabian2', '085718237817', '2026-05-06', '00:20:00', 185000.00, 'lunas', 'selesai', NULL, '2026-05-05 17:21:32'),
+('SLN-20260506-5E90', 'Sabian', '085718237817', '2026-05-06', '00:20:00', 35000.00, 'lunas', 'selesai', NULL, '2026-05-05 17:20:23'),
+('SLN-20260506-7B6F', 'Sabian3', '08756172361', '2026-05-06', '00:23:00', 535000.00, 'batal', 'menunggu', NULL, '2026-05-05 17:22:36');
 
 -- --------------------------------------------------------
 
@@ -76,7 +80,14 @@ INSERT INTO `booking_details` (`id_detail`, `id_booking`, `id_service`, `id_empl
 (6, 'SLN-20260505-752B', 9, 5, 150000.00),
 (7, 'SLN-20260506-4DD3', 7, 4, 35000.00),
 (8, 'SLN-20260506-4DD3', 8, 4, 350000.00),
-(9, 'SLN-20260506-4DD3', 9, 3, 150000.00);
+(9, 'SLN-20260506-4DD3', 9, 3, 150000.00),
+(10, 'SLN-20260506-5E90', 7, 5, 35000.00),
+(11, 'SLN-20260506-5410', 7, 3, 35000.00),
+(12, 'SLN-20260506-5410', 9, 3, 150000.00),
+(13, 'SLN-20260506-7B6F', 7, NULL, 35000.00),
+(14, 'SLN-20260506-7B6F', 8, NULL, 350000.00),
+(15, 'SLN-20260506-7B6F', 9, 5, 150000.00),
+(16, 'SLN-20260506-4B9B', 9, 4, 550000.00);
 
 -- --------------------------------------------------------
 
@@ -123,7 +134,29 @@ INSERT INTO `services` (`id_service`, `nama_layanan`, `deskripsi`, `harga`, `kom
 (6, 'Eyelash', NULL, 120000.00, 20),
 (7, 'Cuci Kering', NULL, 35000.00, 15),
 (8, 'Smoothing Filler', NULL, 350000.00, 15),
-(9, 'Hair Color', NULL, 150000.00, 15);
+(9, 'Hair Color', NULL, 550000.00, 15);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id_user` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `nama_lengkap` varchar(100) DEFAULT NULL,
+  `level` int(11) NOT NULL COMMENT '0:SuperUser, 1:Admin, 2:Pegawai, 3:User'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id_user`, `username`, `password`, `nama_lengkap`, `level`) VALUES
+(3, 'admin', '$2y$10$X8lCAR7tDkEsDKz1VeCjL.nK09oifauLAqrqTEN4cARgJ43lREfvK', 'Owner Amoy Salon', 0),
+(4, 'test', '$2y$10$G9hf5YYKMSwwF13..PnnouArtp6EtILBjd0bb7KrP1qowoy15QR/6', 'test', 2);
 
 --
 -- Indexes for dumped tables
@@ -157,6 +190,13 @@ ALTER TABLE `services`
   ADD PRIMARY KEY (`id_service`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id_user`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -164,19 +204,25 @@ ALTER TABLE `services`
 -- AUTO_INCREMENT for table `booking_details`
 --
 ALTER TABLE `booking_details`
-  MODIFY `id_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id_employee` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_employee` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `services`
 --
 ALTER TABLE `services`
-  MODIFY `id_service` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_service` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
