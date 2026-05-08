@@ -25,6 +25,7 @@ if (isset($_GET['hapus'])) {
 <head>
     <meta charset="UTF-8">
     <title>Manajemen Akun - Amoy Salon</title>
+        <link rel="icon" type="png" href="../asset/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -38,11 +39,30 @@ if (isset($_GET['hapus'])) {
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container">
         <a class="navbar-brand fw-bold" href="admin.php">✨ Amoy Salon Dashboard</a>
-        <div class="collapse navbar-collapse">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="admin.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link active text-warning" href="user_manage.php">👥 Kelola Akun</a></li>
-                <li class="nav-item"><a class="nav-link" href="logout.php">Keluar</a></li>
+                <?php if ($_SESSION['level'] <= 2): ?>
+                    <li class="nav-item"><a class="nav-link active" href="../pages/admin.php">Daftar Booking</a></li>
+                <?php endif; ?>
+                <?php if ($_SESSION['level'] <= 1): ?>
+                    <li class="nav-item"><a class="nav-link text-warning" href="../pages/master_data.php">⚙️ Master Data</a></li>
+                <?php endif; ?>
+                <?php if ($_SESSION['level'] <= 2): ?>
+                    <li class="nav-item"><a class="nav-link text-info" href="../pages/laporan.php">📊 Pendapatan</a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="../pages/komisi.php">💰 Komisi</a></li>
+                <?php endif; ?>
+                <?php if ($_SESSION['level'] <= 1): ?>
+                    <li class="nav-item"><a class="nav-link active text-warning" href="../class/user_manage.php">👥 Kelola Akun</a></li>
+                <?php endif; ?>        
+                <li class="nav-item ms-lg-3"><a class="btn btn-sm btn-outline-light mt-1" href="../index.php" target="_blank">Booking Online</a></li>
+                <li class="nav-item ms-lg-3">
+                    <a class="nav-link text-danger fw-bold" href="../class/logout.php" onclick="return confirm('Yakin ingin keluar?')">
+                        <i class="bi bi-box-arrow-right"></i> Keluar
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

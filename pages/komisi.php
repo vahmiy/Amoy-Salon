@@ -41,6 +41,7 @@ $bulan = date('m', strtotime($filter_periode));
 </head>
 <body>
 
+<!-- NAVIGASI ADMIN -->
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container">
         <a class="navbar-brand fw-bold" href="admin.php">✨ Amoy Salon Dashboard</a>
@@ -49,36 +50,22 @@ $bulan = date('m', strtotime($filter_periode));
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <!-- Level 0, 1, 2 bisa melihat Daftar Booking -->
                 <?php if ($_SESSION['level'] <= 2): ?>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="admin.php">Daftar Booking</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="admin.php">Daftar Booking</a></li>
                 <?php endif; ?>
-
-                <!-- HANYA Level 0 (Super User) dan Level 1 (Admin) yang bisa melihat Master Data -->
                 <?php if ($_SESSION['level'] <= 1): ?>
-                    <li class="nav-item">
-                        <a class="nav-link text-warning" href="master_data.php">⚙️ Master Data</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="master_data.php">⚙️ Master Data</a></li>
                 <?php endif; ?>
-
-                <!-- Level 0, 1, dan 2 bisa melihat Pendapatan & Komisi -->
                 <?php if ($_SESSION['level'] <= 2): ?>
-                    <li class="nav-item">
-                        <a class="nav-link text-info" href="laporan.php">📊 Pendapatan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-warning" href="komisi.php">💰 Komisi</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link text-info" href="laporan.php">📊 Pendapatan</a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="komisi.php">💰 Komisi</a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="laporan_pembayaran.php">📖 Pembukuan</a></li>
                 <?php endif; ?>
-
-                <!-- Link eksternal untuk semua level yang sudah login -->
-                <li class="nav-item ms-lg-3">
-                    <a class="btn btn-sm btn-outline-light mt-1" href="../index.php" target="_blank">Booking Online</a>
-                </li>
-
-                <!-- Tombol Logout -->
+                <?php if ($_SESSION['level'] <= 1): ?>
+                    <li class="nav-item"><a class="nav-link active text-warning" href="../class/user_manage.php">👥 Kelola Akun</a></li>
+                <?php endif; ?>
+                
+                <li class="nav-item ms-lg-3"><a class="btn btn-sm btn-outline-light mt-1" href="../index.php" target="_blank">Booking Online</a></li>
                 <li class="nav-item ms-lg-3">
                     <a class="nav-link text-danger fw-bold" href="../class/logout.php" onclick="return confirm('Yakin ingin keluar?')">
                         <i class="bi bi-box-arrow-right"></i> Keluar
@@ -88,6 +75,7 @@ $bulan = date('m', strtotime($filter_periode));
         </div>
     </div>
 </nav>
+
 
 <div class="container-fluid px-4">
     <div class="row">
