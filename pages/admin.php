@@ -33,6 +33,28 @@ include '../class/koneksi.php';
         .list-petugas li:last-child { border-bottom: none; }
         .dataTables_filter { margin-bottom: 15px; }
         .dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0; margin-left: 5px; }
+
+        /* Styling untuk tombol scan di dalam search bar */
+    .search-container { position: relative; }
+    #btn-scan-qr {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        z-index: 10;
+        background: #fff;
+        border: none;
+        color: #0d6efd;
+        font-size: 1.2rem;
+    }
+    /* Kotak Kamera */
+    #reader {
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        border: none !important;
+    }
     </style>
 </head>
 <body>
@@ -101,6 +123,28 @@ include '../class/koneksi.php';
             </div>
         </div>
     </div>
+
+<!-- BUTTON SCAN -->
+<div class="mb-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scanModal">
+        <i class="bi bi-qr-code-scan"></i> Scan QR Invoice
+    </button>
+</div>
+
+<div class="modal fade" id="scanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="bi bi-camera"></i> Scan QR Invoice</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="reader" style="width: 100%; min-height: 250px; background: #000; border-radius: 8px;"></div>
+                <p class="text-muted small mt-3 mb-0">Arahkan kamera ke QR Code pada Invoice</p>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="card p-4">
         <h4 class="mb-4">Daftar Booking Customer</h4>
@@ -279,12 +323,77 @@ include '../class/koneksi.php';
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
 <script>
 $(document).ready(function() {
-    $('#tabelBooking').DataTable({
+    // --- 2. INISIALISASI DATATABLE (SATU KALI SAJA) ---
+    var table = $('#tabelBooking').DataTable({
         "order": [[ 0, "desc" ]],
-        "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json" },
-        "columnDefs": [ { "orderable": false, "targets": "no-sort" } ]
+        "language": { 
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json" 
+        }
+    });
+
+    // --- 3. LOGIKA SCANNER ---
+    let html5QrCode = null;
+
+    function stopScanner() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+            }).catch(err => console.warn(err));
+        }
+    }
+
+    $('#scanModal').on('shown.bs.modal', function () {
+        setTimeout(() => {
+            html5QrCode = new Html5Qrcode("reader");
+            
+            const qrConfig = { 
+                fps: 10, 
+                qrbox: { width: 250, height: 250 }
+            };
+
+            // PERBAIKAN: Gunakan format string "environment" untuk kamera belakang
+            // Ini adalah cara paling kompatibel untuk menghindari error 'facingMode'
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                qrConfig,
+                (decodedText) => {
+                    // Pencarian ke DataTable
+                    table.search(decodedText).draw(); 
+                    
+                    stopScanner();
+                    $('#scanModal').modal('hide');
+                    alert("Data ditemukan: " + decodedText);
+                }
+            ).catch(err => {
+                // Jika "environment" gagal (misal di laptop yang cuma punya 1 kamera), 
+                // kita coba lagi dengan kamera default ("user")
+                html5QrCode.start(
+                    { facingMode: "user" }, 
+                    qrConfig,
+                    (decodedText) => {
+                        table.search(decodedText).draw(); 
+                        stopScanner();
+                        $('#scanModal').modal('hide');
+                    }
+                ).catch(errFinal => {
+                    $('#reader').html(`
+                        <div class="p-3 text-white small" style="background: #dc3545;">
+                            Gagal Akses Kamera: ${errFinal}
+                        </div>
+                    `);
+                });
+            });
+        }, 300);
+    });
+
+    $('#scanModal').on('hidden.bs.modal', function () {
+        stopScanner();
     });
 });
 </script>
