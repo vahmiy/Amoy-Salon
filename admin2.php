@@ -35,26 +35,26 @@ include '../class/koneksi.php';
         .dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0; margin-left: 5px; }
 
         /* Styling untuk tombol scan di dalam search bar */
-    .search-container { position: relative; }
-    #btn-scan-qr {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        z-index: 10;
-        background: #fff;
-        border: none;
-        color: #0d6efd;
-        font-size: 1.2rem;
-    }
-    /* Kotak Kamera */
-    #reader {
-        width: 100%;
-        border-radius: 10px;
-        overflow: hidden;
-        border: none !important;
-    }
+        .search-container { position: relative; }
+        #btn-scan-qr {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 10;
+            background: #fff;
+            border: none;
+            color: #0d6efd;
+            font-size: 1.2rem;
+        }
+        /* Kotak Kamera */
+        #reader {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: none !important;
+        }
     </style>
 </head>
 <body>
@@ -98,7 +98,6 @@ include '../class/koneksi.php';
     <div class="row mb-4 g-3">
     <?php 
     $today = date('Y-m-d');
-    // Query diperbarui untuk menghitung jumlah customer (booking)
     $sum_q = mysqli_query($conn, "SELECT 
         COUNT(id_booking) as total_booking,
         SUM(total_biaya) as tagihan, 
@@ -112,12 +111,12 @@ include '../class/koneksi.php';
     $total_masuk = $sum_d['masuk'] ?? 0;
     $total_piutang = $total_tagihan - $total_masuk;
     ?>
-    <!-- Fitur Baru: Jumlah Booking -->
+    
     <div class="col-md-3">
-<div class="card p-3 border-start border-info border-4 text-info">
-    <small class="fw-bold text-uppercase">Jumlah Booking</small>
-    <h4 id="display-total-orang" class="mb-0 fw-bold"><?= $total_booking; ?> <small class="fs-6 fw-normal text-muted">Orang</small></h4>
-</div>
+        <div class="card p-3 border-start border-info border-4 text-info">
+            <small class="fw-bold text-uppercase">Jumlah Booking</small>
+            <h4 id="display-total-orang" class="mb-0 fw-bold"><?= $total_booking; ?> <small class="fs-6 fw-normal text-muted">Orang</small></h4>
+        </div>
     </div>
     
     <div class="col-md-3">
@@ -232,8 +231,7 @@ include '../class/koneksi.php';
                                     <span>Bayar:</span>
                                     <span>Rp <?= number_format($terbayar, 0, ',', '.'); ?></span>
                                 </div>
-                            <div class="d-flex justify-content-between border-top mt-1 pt-1 
-                                <?= $sisa > 0 ? 'text-danger fw-bold' : ($sisa < 0 ? 'text-primary fw-bold' : 'text-muted'); ?>">
+                            <div class="d-flex justify-content-between border-top mt-1 pt-1 <?= $sisa > 0 ? 'text-danger fw-bold' : ($sisa < 0 ? 'text-primary fw-bold' : 'text-muted'); ?>">
                                 
                                 <span><?= $sisa >= 0 ? 'Kurang:' : 'Kembali:'; ?></span>
                                 
@@ -244,6 +242,7 @@ include '../class/koneksi.php';
                                         <i class="bi bi-check-all"></i> LUNAS
                                     <?php endif; ?>
                                 </span>
+                            </div>
                             </div>
                         </td>
                         <td>
@@ -294,14 +293,14 @@ include '../class/koneksi.php';
                         </td>
                     </tr>
 
-<!-- Menu Baru -->
+<!-- Modal Kelola (DIPERBAIKI STRUKTURNYA) -->
 <div class="modal fade" id="modalKelola<?= $id_b; ?>" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <form action="../class/update_booking.php" method="POST">
             <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Operasional Booking #<?= $id_b; ?></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">Kelola Layanan #<?= $id_b; ?></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="id_booking" value="<?= $id_b; ?>">
@@ -316,45 +315,75 @@ include '../class/koneksi.php';
                         </select>
                     </div>
 
-                    <h6 class="small fw-bold text-primary mb-3">DETAIL LAYANAN & PETUGAS</h6>
-                    <?php 
-                    $det = mysqli_query($conn, "SELECT d.*, s.nama_layanan FROM booking_details d JOIN services s ON d.id_service = s.id_service WHERE d.id_booking = '$id_b'");
-                    while($ld = mysqli_fetch_array($det)){
-                    ?>
-                        <div class="mb-3 p-3 border rounded-3 bg-white shadow-sm">
-                            <label class="form-label small fw-bold d-block mb-1"><?= $ld['nama_layanan']; ?></label>
-                            <input type="hidden" name="id_detail[]" value="<?= $ld['id_detail']; ?>">
-                            <div class="row g-2">
-                                <div class="col-7">
-                                    <select name="id_employee[]" class="form-select form-select-sm">
-                                        <option value="">-- Pilih Petugas --</option>
-                                        <?php 
-                                        $emp = mysqli_query($conn, "SELECT * FROM employees");
-                                        while($e = mysqli_fetch_array($emp)){
-                                            $sel = ($e['id_employee'] == $ld['id_employee']) ? 'selected' : '';
-                                            echo "<option value='".$e['id_employee']."' $sel>".$e['nama_karyawan']."</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="col-5">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text">Rp</span>
-                                        <input type="number" name="harga_layanan[]" class="form-control" value="<?= $ld['subtotal']; ?>">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="small fw-bold text-primary mb-0">DETAIL LAYANAN & PETUGAS</h6>
+                        <!-- Tombol Tambah Layanan -->
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="tambahBarisLayanan('<?= $id_b; ?>')">
+                            <i class="bi bi-plus-circle"></i> Tambah
+                        </button>
+                    </div>
+
+                    <!-- Container Utama Layanan -->
+                    <div id="containerLayanan<?= $id_b; ?>">
+                        <?php 
+                        $det = mysqli_query($conn, "SELECT d.*, s.nama_layanan FROM booking_details d JOIN services s ON d.id_service = s.id_service WHERE d.id_booking = '$id_b'");
+                        while($ld = mysqli_fetch_array($det)){
+                            $subtotal_layanan = isset($ld['subtotal']) ? $ld['subtotal'] : 0; 
+                        ?>
+                            <div class="item-layanan mb-3 p-3 border rounded-3 bg-white shadow-sm position-relative">
+                                <button type="button" class="btn-close position-absolute end-0 top-0 m-2" style="font-size: 0.7rem;" onclick="hapusBarisLayanan(this)"></button>
+                                
+                                <input type="hidden" name="id_detail[]" value="<?= $ld['id_detail']; ?>">
+                                
+                                <div class="row g-2">
+                                    <div class="col-12 mb-2">
+                                        <select name="id_service[]" class="form-select form-select-sm bg-light">
+                                            <?php 
+                                            $services = mysqli_query($conn, "SELECT * FROM services");
+                                            while($s = mysqli_fetch_array($services)){
+                                                $selS = ($s['id_service'] == $ld['id_service']) ? 'selected' : '';
+                                                echo "<option value='".$s['id_service']."' $selS>".$s['nama_layanan']."</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-7">
+                                        <select name="id_employee[]" class="form-select form-select-sm">
+                                            <option value="">-- Pilih Petugas --</option>
+                                            <?php 
+                                            $emp = mysqli_query($conn, "SELECT * FROM employees");
+                                            while($e = mysqli_fetch_array($emp)){
+                                                $selE = ($e['id_employee'] == $ld['id_employee']) ? 'selected' : '';
+                                                echo "<option value='".$e['id_employee']."' $selE>".$e['nama_karyawan']."</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">Rp</span>
+                                            <!-- Ditambahkan class harga-input disini -->
+                                            <input type="number" name="harga_layanan[]" class="form-control harga-input" value="<?= $subtotal_layanan; ?>">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php } ?>
+                        <?php } ?>
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Update Data Operasional</button>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                        <span class="fw-bold">Total Tagihan:</span>
+                        <span class="display-total-tagihan text-primary fw-bold" data-value="<?= $total_biaya ?>">Rp <?= number_format($total_biaya, 0, ',', '.') ?></span>
+                    </div>
+                    <button type="submit" name="update_admin" class="btn btn-primary">Simpan Perubahan</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-<!-- Menu baru Bayar -->
+
+<!-- Menu Bayar -->
 <div class="modal fade" id="modalBayar<?= $id_b; ?>" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <form action="../class/update_booking.php" method="POST">
@@ -367,10 +396,8 @@ include '../class/koneksi.php';
                     <input type="hidden" name="id_booking" value="<?= $id_b; ?>">
                     <input type="hidden" name="update_type" value="pembayaran">
 
-                    <!-- Area Total Tagihan -->
                     <div class="text-center mb-4 py-3 bg-light rounded-3">
                         <span class="text-muted small text-uppercase">Total Tagihan</span>
-                        <!-- ID 'total_val_...' digunakan sebagai referensi di JS -->
                         <h2 class="fw-bold mb-0 text-dark" id="total_val_<?= $id_b; ?>" data-nominal="<?= $total_biaya; ?>">
                             Rp <?= number_format($total_biaya, 0, ',', '.'); ?>
                         </h2>
@@ -379,19 +406,16 @@ include '../class/koneksi.php';
                     <div class="row g-3 mb-4">
                         <div class="col-6">
                             <label class="form-label small fw-bold">BAYAR CASH (RP)</label>
-                            <!-- ID 'cash_...' harus sama dengan di script JS -->
                             <input type="number" name="bayar_cash" id="cash_<?= $id_b; ?>" class="form-control input-pembayaran" 
                                    value="<?= $row['bayar_cash'] ?? 0; ?>" data-id="<?= $id_b; ?>">
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold">TRANSFER (RP)</label>
-                            <!-- ID 'trf_...' harus sama dengan di script JS -->
                             <input type="number" name="bayar_transfer" id="trf_<?= $id_b; ?>" class="form-control input-pembayaran" 
                                    value="<?= $row['bayar_transfer'] ?? 0; ?>" data-id="<?= $id_b; ?>">
                         </div>
                     </div>
 
-                    <!-- Indikator Kembalian -->
                     <div id="box_kembalian_<?= $id_b; ?>" class="p-3 bg-warning bg-opacity-10 rounded-3 border border-warning border-dashed text-center mb-4">
                         <span class="small fw-bold text-uppercase d-block mb-1" id="label_selisih_<?= $id_b; ?>">Uang Kembalian</span>
                         <h3 class="fw-bold text-success mb-0" id="change_text_<?= $id_b; ?>">Rp 0</h3>
@@ -414,7 +438,6 @@ include '../class/koneksi.php';
     </div>
 </div>
 
-                    
                     <?php } ?>
                 </tbody>
             </table>
@@ -426,10 +449,45 @@ include '../class/koneksi.php';
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
 <script src="https://unpkg.com/html5-qrcode"></script>
 
-<script>$(document).ready(function() {
+<script>
+// ==========================================
+// FUNGSI GLOBAL (Harus di luar document ready agar terbaca onclick HTML)
+// ==========================================
+function tambahBarisLayanan(idBooking) {
+    const container = document.getElementById('containerLayanan' + idBooking);
+    const items = container.getElementsByClassName('item-layanan');
+    
+    const newItem = items[0].cloneNode(true);
+    
+    const inputs = newItem.querySelectorAll('input');
+    inputs.forEach(input => {
+        if(input.name === 'id_detail[]') {
+            input.value = 'baru'; 
+        } else {
+            input.value = '';
+        }
+    });
+    
+    const selects = newItem.querySelectorAll('select');
+    selects.forEach(select => select.selectedIndex = 0);
+
+    container.appendChild(newItem);
+}
+
+function hapusBarisLayanan(btn) {
+    const container = btn.closest('[id^="containerLayanan"]');
+    const items = container.getElementsByClassName('item-layanan');
+    
+    if (items.length > 1) {
+        btn.closest('.item-layanan').remove();
+    } else {
+        alert("Minimal harus ada 1 layanan.");
+    }
+}
+
+$(document).ready(function() {
     // ==========================================
     // 1. INISIALISASI DATATABLES
     // ==========================================
@@ -440,22 +498,8 @@ include '../class/koneksi.php';
         },
         "drawCallback": function(settings) {
             var api = this.api();
-            
-            // A. Hitung Total Orang (Baris yang terlihat setelah filter)
             var totalOrang = api.rows({ filter: 'applied' }).count();
             $('#display-total-orang').html(totalOrang + ' <small class="fs-6 fw-normal text-muted">Orang</small>');
-
-            // B. Hitung Total Omzet Otomatis
-            // Kita asumsikan kolom "Total Biaya" ada di indeks ke-3 (kolom ke-4)
-            // Sesuaikan angka 3 jika posisi kolom Anda berbeda
-            var totalOmzet = api.column(3, { filter: 'applied' }).data().reduce(function (a, b) {
-                // Bersihkan string dari "Rp", titik, dsb untuk dikonversi ke angka
-                var cleanA = typeof a === 'string' ? a.replace(/[^\d]/g, '') : a;
-                var cleanB = typeof b === 'string' ? b.replace(/[^\d]/g, '') : b;
-                return (parseInt(cleanA) || 0) + (parseInt(cleanB) || 0);
-            }, 0);
-
-            $('#display-total-omzet').html('Rp ' + totalOmzet.toLocaleString('id-ID'));
         }
     });
 
@@ -466,7 +510,7 @@ include '../class/koneksi.php';
         function(settings, data, dataIndex) {
             var min = $('#min').val(); 
             var max = $('#max').val(); 
-            var rowNode = table.cell(dataIndex, 2).node(); // Indeks 2 adalah kolom tanggal
+            var rowNode = table.cell(dataIndex, 2).node(); 
             var date = rowNode ? rowNode.getAttribute('data-sort') : "";
 
             if (
@@ -525,56 +569,42 @@ include '../class/koneksi.php';
         var modal = $(this).closest('.modal');
         var totalBaru = 0;
 
-        // Hitung semua input harga di dalam modal tersebut
         modal.find('.harga-input').each(function() {
             totalBaru += parseInt($(this).val()) || 0;
         });
 
-        // Update tampilan teks total tagihan di modal kelola
         modal.find('.display-total-tagihan').text('Rp ' + totalBaru.toLocaleString('id-ID'));
-        // Simpan angka murni di atribut data agar mudah dibaca oleh modal bayar
         modal.find('.display-total-tagihan').data('value', totalBaru);
     });
 
     // ==========================================
     // 5. LOGIKA MODAL BAYAR (Kembalian & Status)
     // ==========================================
-    $(document).ready(function() {
-    // Fungsi utama hitung kembalian
     $(document).on('input', '.input-pembayaran', function() {
-        // Ambil ID booking dari atribut data-id
         var id = $(this).data('id');
-        
-        // Ambil nominal angka murni dari atribut data-nominal
         var totalTagihan = parseInt($('#total_val_' + id).data('nominal')) || 0;
         
-        // Ambil nilai input cash dan transfer
         var cash = parseInt($('#cash_' + id).val()) || 0;
         var trf = parseInt($('#trf_' + id).val()) || 0;
         
         var totalBayar = cash + trf;
         var selisih = totalBayar - totalTagihan;
 
-        // Target elemen display
         var changeText = $('#change_text_' + id);
         var labelSelisih = $('#label_selisih_' + id);
         var selectStatus = $('#status_p_' + id);
 
         if (selisih >= 0) {
-            // Jika Uang Pas atau Lebih (Kembalian)
             labelSelisih.text("Uang Kembalian");
             changeText.text("Rp " + new Intl.NumberFormat('id-ID').format(selisih));
             changeText.removeClass('text-danger').addClass('text-success');
             
-            // Auto-set Lunas jika uang cukup
             if (totalTagihan > 0) selectStatus.val('lunas');
         } else {
-            // Jika Uang Kurang
             labelSelisih.text("Kekurangan Bayar");
             changeText.text("Rp " + new Intl.NumberFormat('id-ID').format(Math.abs(selisih)));
             changeText.removeClass('text-success').addClass('text-danger');
             
-            // Auto-set DP jika sudah ada uang masuk tapi belum cukup
             if (totalBayar > 0) {
                 selectStatus.val('dp');
             } else {
@@ -582,7 +612,6 @@ include '../class/koneksi.php';
             }
         }
     });
-});
 });
 </script>
 </body>

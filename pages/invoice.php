@@ -99,7 +99,7 @@ $qr_api = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . url
                         <thead class="table-light">
                             <tr>
                                 <th>Layanan</th>
-                                <th class="text-end">Harga</th>
+                                <!-- <th class="text-end">Harga</th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -112,15 +112,15 @@ $qr_api = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . url
                             ?>
                             <tr>
                                 <td class="border-bottom-dotted"><?php echo $det['nama_layanan']; ?></td>
-                                <td class="text-end text-muted border-bottom-dotted">Rp <?php echo number_format($det['subtotal'], 0, ',', '.'); ?></td>
+                                <!-- <td class="text-end text-muted border-bottom-dotted">Rp <?php echo number_format($det['subtotal'], 0, ',', '.'); ?></td> -->
                             </tr>
                             <?php } ?>
                         </tbody>
                         <tfoot>
-                            <tr>
+                            <!-- <tr>
                                 <td class="fw-bold fs-5 pt-3">Total Tagihan</td>
                                 <td class="text-end fw-bold fs-5 text-primary pt-3">Rp <?php echo number_format($data['total_biaya'], 0, ',', '.'); ?></td>
-                            </tr>
+                            </tr> -->
                         </tfoot>
                     </table>
                 </div>

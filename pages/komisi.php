@@ -137,32 +137,34 @@ $bulan = date('m', strtotime($filter_periode));
                                 $where .= " AND d.id_employee = '$filter_karyawan'";
                             }
 
-                            // Query menggabungkan booking_details dengan services (untuk komisi_persen)
-                            $sql = "SELECT b.tgl_booking, e.nama_karyawan, s.nama_layanan, s.harga, s.komisi_persen,
-                                    (s.harga * s.komisi_persen / 100) as rupiah_komisi
-                                    FROM booking_details d
-                                    JOIN bookings b ON d.id_booking = b.id_booking
-                                    JOIN services s ON d.id_service = s.id_service
-                                    JOIN employees e ON d.id_employee = e.id_employee
-                                    $where
-                                    ORDER BY b.tgl_booking DESC";
-                            
-                            $query = mysqli_query($conn, $sql);
-                            $grand_total_komisi = 0;
+                                $sql = "SELECT b.tgl_booking, e.nama_karyawan, s.nama_layanan, 
+                                            d.subtotal as harga_real, 
+                                            s.komisi_persen,
+                                            (d.subtotal * s.komisi_persen / 100) as rupiah_komisi
+                                        FROM booking_details d
+                                        JOIN bookings b ON d.id_booking = b.id_booking
+                                        JOIN services s ON d.id_service = s.id_service
+                                        JOIN employees e ON d.id_employee = e.id_employee
+                                        $where
+                                        ORDER BY b.tgl_booking DESC";
 
-                            while($row = mysqli_fetch_array($query)){
-                                $grand_total_komisi += $row['rupiah_komisi'];
-                            ?>
-                            <tr>
-                                <td><?= date('d/m/Y', strtotime($row['tgl_booking'])); ?></td>
-                                <td class="fw-bold"><?= $row['nama_karyawan']; ?></td>
-                                <td><?= $row['nama_layanan']; ?></td>
-                                <td>Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
-                                <td><span class="badge bg-secondary"><?= $row['komisi_persen']; ?>%</span></td>
-                                <td class="text-nominal text-success">
-                                    Rp <?= number_format($row['rupiah_komisi'], 0, ',', '.'); ?>
-                                </td>
-                            </tr>
+                                $query = mysqli_query($conn, $sql);
+                                $grand_total_komisi = 0;
+
+                                while($row = mysqli_fetch_array($query)){
+                                    $grand_total_komisi += $row['rupiah_komisi'];
+                                ?>
+                                <tr>
+                                    <td><?= date('d/m/Y', strtotime($row['tgl_booking'])); ?></td>
+                                    <td class="fw-bold"><?= $row['nama_karyawan']; ?></td>
+                                    <td><?= $row['nama_layanan']; ?></td>
+                                    <!-- Menggunakan harga_real yang sudah termasuk diskon kasir -->
+                                    <td>Rp <?= number_format($row['harga_real'], 0, ',', '.'); ?></td>
+                                    <td><span class="badge bg-secondary"><?= $row['komisi_persen']; ?>%</span></td>
+                                    <td class="text-nominal text-success">
+                                        Rp <?= number_format($row['rupiah_komisi'], 0, ',', '.'); ?>
+                                    </td>
+                                </tr>
                             <?php } ?>
                         </tbody>
                         <tfoot>
