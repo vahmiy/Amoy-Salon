@@ -53,13 +53,15 @@ if (isset($_GET['hapus'])) {
                 <?php if ($_SESSION['level'] <= 2): ?>
                     <li class="nav-item"><a class="nav-link text-info" href="../pages/laporan.php">📊 Pendapatan</a></li>
                     <li class="nav-item"><a class="nav-link text-warning" href="../pages/komisi.php">💰 Komisi</a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="../pages/laporan_pembayaran.php">📖 Pembukuan</a></li>
                 <?php endif; ?>
                 <?php if ($_SESSION['level'] <= 1): ?>
-                    <li class="nav-item"><a class="nav-link active text-warning" href="../class/user_manage.php">👥 Kelola Akun</a></li>
-                <?php endif; ?>        
+                    <li class="nav-item"><a class="nav-link active text-warning" href="user_manage.php">👥 Kelola Akun</a></li>
+                <?php endif; ?>
+                
                 <li class="nav-item ms-lg-3"><a class="btn btn-sm btn-outline-light mt-1" href="../index.php" target="_blank">Booking Online</a></li>
                 <li class="nav-item ms-lg-3">
-                    <a class="nav-link text-danger fw-bold" href="../class/logout.php" onclick="return confirm('Yakin ingin keluar?')">
+                    <a class="nav-link text-danger fw-bold" href="logout.php" onclick="return confirm('Yakin ingin keluar?')">
                         <i class="bi bi-box-arrow-right"></i> Keluar
                     </a>
                 </li>
