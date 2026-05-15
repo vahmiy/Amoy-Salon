@@ -19,99 +19,144 @@ $selisih = $bayar - $total;
     <meta charset="UTF-8">
     <title>Nota #<?= $id_b; ?></title>
     <style>
-        /* Pengaturan Kertas Thermal 80mm */
-        @page { size: 80mm auto; margin: 0; }
-        body { 
-            font-family: 'Courier New', Courier, monospace; 
-            width: 72mm; /* Area cetak bersih */
-            margin: 0 auto; 
-            padding: 10px;
-            font-size: 12px;
-            color: #000;
+        /* Pengaturan Kertas Thermal 58mm */
+        @page { 
+            margin: 0; 
+            size: 58mm auto; 
         }
+        
+        body { 
+            /* Menggunakan Arial/Helvetica karena dirender lebih tebal & jelas di printer thermal */
+            font-family: Arial, Helvetica, sans-serif; 
+            /* Area cetak bersih untuk kertas 58mm biasanya sekitar 48mm */
+            width: 44mm; 
+            margin-left: 2mm; /* Geser sedikit dari batas fisik kertas kiri */
+            margin-right: 0;
+            text-rendering: optimizeLegibility;
+            /*--------------------------*/
+            padding: 5px 0;
+            font-size: 11px;
+            color: #000;
+            line-height: 1.2;
+        }
+
+        /* Utility Classes */
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .line { border-bottom: 1px dashed #000; margin: 5px 0; }
-        table { width: 100%; border-collapse: collapse; }
-        .header h2 { margin: 0; font-size: 18px; }
-        .header p { margin: 2px 0; font-size: 10px; }
+        .text-left { text-align: left; }
+        .fw-bold { font-weight: bold; }
+        
+        /* Garis putus-putus tebal */
+        .line { 
+            border-bottom: 1px dashed #000; 
+            margin: 5px 0; 
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse;
+            /* Memaksa tabel tidak melebar keluar dari 44mm */
+            table-layout: fixed;
+        }
+        
+        td, th {
+            vertical-align: top;
+            padding: 2px 0;
+            word-wrap: break-word; /* Nama layanan panjang akan turun ke bawah, bukan dorong harga */
+        }
+
+        /* Header Nota */
+        .header h2 { 
+            margin: 0 0 3px 0; 
+            font-size: 16px; /* Tidak terlalu besar agar tidak terpotong */
+            font-weight: bold;
+        }
+        .header p { 
+            margin: 0; 
+            font-size: 10px; 
+        }
+
+        /* Footer Nota */
+        .footer p {
+            margin: 2px 0;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body onload="window.print();">
 
     <div class="header text-center">
         <h2>AMOY SALON</h2>
-        <p>Kp Dangdeur No.001/008, Kiangroke, Kec. Banjaran Kabupaten Bandung</p>
+        <p>Kp Dangdeur No.001/008, Kiangroke</p>
+        <p>Kec. Banjaran, Kab. Bandung</p>
         <p>WA: 0812-3456-7890</p>
     </div>
 
     <div class="line"></div>
 
-   <table>
-    <tr>
-        <td>Nota: #<?= $id_b; ?></td>
-        <!-- Bagian ini diubah untuk menampilkan waktu cetak saat ini -->
-        <td class="text-right">
-            Dicetak: <?= date('d/m/Y H:i:s'); ?>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2">Cust: <?= $data['nama_customer']; ?></td>
-    </tr>
-    <tr>
-        <td colspan="2">
-            <medium> Reservasi: <?= date('d/m/Y', strtotime($data['tgl_booking'])); ?></small>
-        </td>
-    </tr>
-</table>
+    <table>
+        <tr>
+            <td class="text-left fw-bold">#<?= $id_b; ?></td>
+            <td class="text-right" style="font-size: 10px;">
+                <?= date('d/m/y H:i'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">Cust: <strong><?= $data['nama_customer']; ?></strong></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="font-size: 10px;">
+                Reservasi: <?= date('d/m/Y', strtotime($data['tgl_booking'])); ?>
+            </td>
+        </tr>
+    </table>
 
     <div class="line"></div>
 
     <table>
         <thead>
             <tr>
-                <th align="left">Layanan</th>
-                <th align="right">Harga</th>
+                <th class="text-left">Layanan</th>
+                <th class="text-right">Harga</th>
             </tr>
         </thead>
-<tbody>
-    <?php 
-    $details = mysqli_query($conn, "SELECT d.*, s.nama_layanan FROM booking_details d 
-                                    JOIN services s ON d.id_service = s.id_service 
-                                    WHERE d.id_booking = '$id_b'");
-    while($ld = mysqli_fetch_array($details)){
-        // Perbaikan: Menggunakan tanda kutip tunggal untuk class HTML agar tidak bentrok
-        echo "<tr>
-                <td>".$ld['nama_layanan']."</td>
-                <td class='text-right'>".number_format($ld['subtotal'], 0, ',', '.')."</td>
-              </tr>";
-    }
-    ?>
-</tbody>
+        <tbody>
+            <?php 
+            $details = mysqli_query($conn, "SELECT d.*, s.nama_layanan FROM booking_details d 
+                                            JOIN services s ON d.id_service = s.id_service 
+                                            WHERE d.id_booking = '$id_b'");
+            while($ld = mysqli_fetch_array($details)){
+                echo "<tr>
+                        <td class='text-left'>".$ld['nama_layanan']."</td>
+                        <td class='text-right'>".number_format($ld['subtotal'], 0, ',', '.')."</td>
+                      </tr>";
+            }
+            ?>
+        </tbody>
     </table>
 
     <div class="line"></div>
 
     <table>
         <tr>
-            <td>Total Tagihan</td>
-            <td class="text-right">Rp <?= number_format($total, 0, ',', '.'); ?></td>
+            <td>Total</td>
+            <td class="text-right fw-bold">Rp <?= number_format($total, 0, ',', '.'); ?></td>
         </tr>
         <tr>
-            <td>Total Bayar</td>
+            <td>Bayar</td>
             <td class="text-right">Rp <?= number_format($bayar, 0, ',', '.'); ?></td>
         </tr>
-        <tr style="font-weight: bold;">
-            <td><?= $selisih >= 0 ? 'Kembali' : 'Sisa Kurang'; ?></td>
-            <td class="text-right">Rp <?= number_format(abs($selisih), 0, ',', '.'); ?></td>
+        <tr>
+            <td><?= $selisih >= 0 ? 'Kembali' : 'Kurang'; ?></td>
+            <td class="text-right fw-bold">Rp <?= number_format(abs($selisih), 0, ',', '.'); ?></td>
         </tr>
     </table>
 
     <div class="line"></div>
     
-    <div class="text-center" style="margin-top: 10px;">
-        <p>Terima Kasih Atas Kunjungan Anda</p>
-        <p>Ini adalah bukti pembarayan sah, Barang/Jasa yang sudah dibeli tidak dapat ditukar</p>
+    <div class="text-center footer" style="margin-top: 10px;">
+        <p class="fw-bold">Terima Kasih Atas Kunjungan Anda</p>
+        <p>Barang/Jasa yang sudah dibeli<br>tidak dapat ditukar</p>
     </div>
 
 </body>
